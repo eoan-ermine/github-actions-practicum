@@ -94,7 +94,7 @@ StringResponse HandleRequest(StringRequest&& request) {
     case http::verb::get:
         return text_response(
             http::status::ok,
-            "<strong>Hello, "s.append(request.target().substr(1)).append("</strong>")
+            "Hello, "s.append(request.target().substr(1))
         );
     case http::verb::head:
         return empty_response(http::status::ok);
