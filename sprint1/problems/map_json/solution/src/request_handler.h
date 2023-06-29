@@ -58,7 +58,7 @@ public:
             else
                 send(json_response(http::status::ok, Serialize(*map_ptr)));
         } else if (target.starts_with("/api/"sv)) {
-            send(json_response(http::status::not_found,
+            send(json_response(http::status::bad_request,
                                SerializeError("badRequest"sv, "Bad request")));
         }
     }
