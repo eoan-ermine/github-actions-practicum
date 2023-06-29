@@ -81,6 +81,7 @@ private:
     void BakeBread() {
         logger_.LogMessage("Start baking bread");
         bread_->StartBake(*gas_cooker_, [self = shared_from_this()]() {
+            self->bread_timer_.expires_from_now(Milliseconds{1000});
             self->bread_timer_.async_wait(
             net::bind_executor(self->strand_, [self = std::move(self)](sys::error_code ec) {
                 self->OnBaked(ec);
@@ -107,6 +108,7 @@ private:
     void FrySausage() {
         logger_.LogMessage("Start baking bread");
         sausage_->StartFry(*gas_cooker_, [self = shared_from_this()]() {
+            self->sausage_timer_.expires_from_now(Milliseconds{1500});
             self->sausage_timer_.async_wait(
             net::bind_executor(self->strand_, [self = std::move(self)](sys::error_code ec) {
                 self->OnFried(ec);
