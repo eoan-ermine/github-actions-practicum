@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-find_package(Boost 1.78.0 REQUIRED)
+find_package(Boost 1.82.0 REQUIRED COMPONENTS json)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
@@ -22,10 +22,11 @@ add_executable(game_server
 	src/model.h
 	src/model.cpp
 	src/tagged.h
-	src/boost_json.cpp
 	src/json_loader.h
 	src/json_loader.cpp
+	src/json_serializer.h
+	src/json_serializer.cpp
 	src/request_handler.cpp
 	src/request_handler.h
 )
-target_link_libraries(game_server PRIVATE Threads::Threads)
+target_link_libraries(game_server PRIVATE Threads::Threads ${Boost_LIBRARIES})
