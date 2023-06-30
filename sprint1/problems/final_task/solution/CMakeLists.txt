@@ -15,14 +15,14 @@ add_executable(game_server
 	src/main.cpp
 	src/http_server.cpp
 	src/http_server.hpp
-	src/sdk.hpp
+	src/util/sdk.hpp
 	src/model.hpp
 	src/model.cpp
-	src/tagged.hpp
+	src/util/error.hpp
+	src/util/error.cpp
+	src/util/tagged.hpp
 	src/json_loader.hpp
 	src/json_loader.cpp
-	src/json_serializer.hpp
-	src/json_serializer.cpp
 	src/request_handler.cpp
 	src/request_handler.hpp
 )

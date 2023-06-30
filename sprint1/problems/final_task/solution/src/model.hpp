@@ -1,11 +1,16 @@
 #pragma once
+
+#include <boost/json.hpp>
+
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include "tagged.hpp"
+#include "util/tagged.hpp"
 
 namespace model {
+
+using namespace boost::json;
 
 using Dimension = int;
 using Coord = Dimension;
@@ -57,6 +62,11 @@ class Road {
     Point end_;
 };
 
+// Serialize road structure to json value
+void tag_invoke(value_from_tag, value &value, const Road &road);
+// Deserialize json value to road structure
+Road tag_invoke(value_to_tag<Road>, const value &value);
+
 class Building {
   public:
     explicit Building(Rectangle bounds) noexcept : bounds_{bounds} {}
@@ -66,6 +76,11 @@ class Building {
   private:
     Rectangle bounds_;
 };
+
+// Serialize building structure to json value
+void tag_invoke(value_from_tag, value &value, const Building &building);
+// Deserialize json value to building structure
+Building tag_invoke(value_to_tag<Building>, const value &value);
 
 class Office {
   public:
@@ -85,6 +100,11 @@ class Office {
     Offset offset_;
 };
 
+// Serialize office structure to json value
+void tag_invoke(value_from_tag, value &value, const Office &office);
+// Deserialize json value to office structure
+Office tag_invoke(value_to_tag<Office>, const value &value);
+
 class Map {
   public:
     using Id = util::Tagged<std::string, Map>;
@@ -93,6 +113,15 @@ class Map {
     using Offices = std::vector<Office>;
 
     Map(Id id, std::string name) noexcept : id_(std::move(id)), name_(std::move(name)) {}
+
+    Map(Id id, std::string name, Roads &&roads, Buildings &&buildings, Offices &&offices) noexcept
+        : Map(std::move(id), std::move(name)) {
+        roads_ = std::move(roads);
+        buildings_ = std::move(buildings);
+        for (auto &&office : offices) {
+            AddOffice(std::move(office));
+        }
+    }
 
     const Id &GetId() const noexcept { return id_; }
 
@@ -104,14 +133,10 @@ class Map {
 
     const Offices &GetOffices() const noexcept { return offices_; }
 
-    void AddRoad(const Road &road) { roads_.emplace_back(road); }
-
-    void AddBuilding(const Building &building) { buildings_.emplace_back(building); }
-
-    void AddOffice(Office office);
-
   private:
     using OfficeIdToIndex = std::unordered_map<Office::Id, size_t, util::TaggedHasher<Office::Id>>;
+
+    void AddOffice(Office &&office);
 
     Id id_;
     std::string name_;
@@ -122,11 +147,20 @@ class Map {
     Offices offices_;
 };
 
+// Serialize map structure to json value
+void tag_invoke(value_from_tag, value &value, const Map &map);
+// Deserialize json value to map structure
+Map tag_invoke(value_to_tag<Map>, const value &value);
+
 class Game {
   public:
     using Maps = std::vector<Map>;
 
-    void AddMap(Map map);
+    explicit Game(Maps &&maps) {
+        for (auto &&map : maps) {
+            AddMap(std::move(map));
+        }
+    }
 
     const Maps &GetMaps() const noexcept { return maps_; }
 
@@ -141,8 +175,15 @@ class Game {
     using MapIdHasher = util::TaggedHasher<Map::Id>;
     using MapIdToIndex = std::unordered_map<Map::Id, size_t, MapIdHasher>;
 
+    void AddMap(Map &&map);
+
     std::vector<Map> maps_;
     MapIdToIndex map_id_to_index_;
 };
+
+// Deserialize json value to game structure
+Game tag_invoke(value_to_tag<Game>, const value &value);
+// Serialize maps to json value
+void tag_invoke(value_from_tag, value &value, const Game::Maps &maps);
 
 } // namespace model
