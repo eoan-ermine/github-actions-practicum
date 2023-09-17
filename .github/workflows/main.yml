@@ -30,7 +30,7 @@ jobs:
       - name: Load tests
         uses: actions/checkout@v3
         with:
-          repository: 'cpppracticum/cpp-backend-tests-practicum'
+          repository: 'eoan-ermine/cpp-backend-tests-practicum'
           path: 'cpp-backend-tests-practicum'
           ref: 'may'
 
